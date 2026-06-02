@@ -3,26 +3,18 @@ using UnityEngine;
 
 public class MagicChest : MonoBehaviour
 {
-    [Header("Partes del cofre")]
-    public Transform lidPivot;
-    public GameObject keyObject;
+    [Header("Animacion del cofre")]
+    public Animator chestAnimator;
+    public string openAnimationName = "Open";
 
-    [Header("Animacion")]
-    public Vector3 openRotationOffset = new Vector3(-80f, 0f, 0f);
-    public float openDuration = 1f;
+    [Header("Llave")]
+    public GameObject keyObject;
+    public float keyRevealDelay = 0.8f;
 
     private bool isOpen;
-    private Quaternion closedRotation;
-    private Quaternion openRotation;
 
     private void Start()
     {
-        if (lidPivot != null)
-        {
-            closedRotation = lidPivot.localRotation;
-            openRotation = Quaternion.Euler(lidPivot.localEulerAngles + openRotationOffset);
-        }
-
         if (keyObject != null)
         {
             keyObject.SetActive(false);
@@ -38,31 +30,21 @@ public class MagicChest : MonoBehaviour
 
         isOpen = true;
 
+        if (chestAnimator != null)
+        {
+            chestAnimator.Play(openAnimationName);
+        }
+
+        StartCoroutine(ShowKeyAfterDelay());
+    }
+
+    private IEnumerator ShowKeyAfterDelay()
+    {
+        yield return new WaitForSeconds(keyRevealDelay);
+
         if (keyObject != null)
         {
             keyObject.SetActive(true);
         }
-
-        if (lidPivot != null)
-        {
-            StartCoroutine(OpenLid());
-        }
-    }
-
-    private IEnumerator OpenLid()
-    {
-        float elapsedTime = 0f;
-
-        while (elapsedTime < openDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / openDuration;
-
-            lidPivot.localRotation = Quaternion.Slerp(closedRotation, openRotation, t);
-
-            yield return null;
-        }
-
-        lidPivot.localRotation = openRotation;
     }
 }
