@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.Events;
 
 public class CalderoMagico : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class CalderoMagico : MonoBehaviour
 
     [Tooltip("Arrastra aquí TODOS los ingredientes que participan en este puzzle")]
     [SerializeField] private List<GameObject> todosLosIngredientes;
+
+    [Tooltip("Arrastra aquí lo que deba pasar cuando se complete la poción")]
+    public UnityEvent alCompletarPocion;
 
     // Diccionarios para guardar la posición y rotación original de cada ingrediente
     private Dictionary<GameObject, Vector3> posicionesIniciales = new Dictionary<GameObject, Vector3>();
@@ -119,6 +123,7 @@ public class CalderoMagico : MonoBehaviour
 
     private void AbrirPuertaCastillo()
     {
-        Debug.Log("¡Poción completada! La puerta se abre.");
+        Debug.Log("¡Poción completada! Lanzando evento...");
+        alCompletarPocion.Invoke(); // Esto dispara todo lo que configures en el Inspector
     }
 }
