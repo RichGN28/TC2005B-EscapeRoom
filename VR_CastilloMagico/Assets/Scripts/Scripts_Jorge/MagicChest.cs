@@ -5,11 +5,14 @@ public class MagicChest : MonoBehaviour
 {
     [Header("Animacion del cofre")]
     public Animator chestAnimator;
-    public string openAnimationName = "Open";
+    public string openAnimationName = "Fantasy_Polygon_Chest_Animation";
+
+    [Header("Tiempo")]
+    public float stopAnimatorDelay = 0.8f;
+    public float keyRevealDelay = 0.1f;
 
     [Header("Llave")]
     public GameObject keyObject;
-    public float keyRevealDelay = 0.8f;
 
     private bool isOpen;
 
@@ -18,6 +21,12 @@ public class MagicChest : MonoBehaviour
         if (keyObject != null)
         {
             keyObject.SetActive(false);
+        }
+
+        if (chestAnimator != null)
+        {
+            chestAnimator.enabled = false;
+            chestAnimator.speed = 1f;
         }
     }
 
@@ -32,14 +41,23 @@ public class MagicChest : MonoBehaviour
 
         if (chestAnimator != null)
         {
-            chestAnimator.Play(openAnimationName);
+            chestAnimator.enabled = true;
+            chestAnimator.speed = 1f;
+            chestAnimator.Play(openAnimationName, 0, 0f);
         }
 
-        StartCoroutine(ShowKeyAfterDelay());
+        StartCoroutine(StopChestWhenOpen());
     }
 
-    private IEnumerator ShowKeyAfterDelay()
+    private IEnumerator StopChestWhenOpen()
     {
+        yield return new WaitForSeconds(stopAnimatorDelay);
+
+        if (chestAnimator != null)
+        {
+            chestAnimator.speed = 0f;
+        }
+
         yield return new WaitForSeconds(keyRevealDelay);
 
         if (keyObject != null)
