@@ -7,6 +7,8 @@ TagManager:
   - escencia_dragon
   - lagrima_hada
   - polvo_estrellas
+  - PiedraMagica
+  - LlaveMagica
   layers:
   - Default
   - TransparentFX
