@@ -21,7 +21,8 @@ public class CalderoMagico : MonoBehaviour
     private Dictionary<GameObject, Vector3> posicionesIniciales = new Dictionary<GameObject, Vector3>();
     private Dictionary<GameObject, Quaternion> rotacionesIniciales = new Dictionary<GameObject, Quaternion>();
 
-    private int pasoActual = 0;
+    // Lista para guardar lo que el jugador va metiendo al caldero
+    private List<string> tagsIngresados = new List<string>();
 
     void Awake()
     {
@@ -55,45 +56,53 @@ public class CalderoMagico : MonoBehaviour
     {
         GameObject objetoInteractuado = args.interactableObject.transform.gameObject;
 
-        if (objetoInteractuado.CompareTag(ordenCorrectoReceta[pasoActual]))
+        // 1. Guardar el tag del objeto que acaba de entrar en nuestra lista temporal
+        tagsIngresados.Add(objetoInteractuado.tag);
+        Debug.Log("Ingrediente echado: " + objetoInteractuado.tag + ". Total en caldero: " + tagsIngresados.Count);
+
+        // 2. Desconectar el objeto del socket para dejarlo libre
+        socket.interactionManager.SelectExit(socket, (IXRSelectInteractable)objetoInteractuado.GetComponent<XRGrabInteractable>());
+
+        // 3. Ocultar el ingrediente (simulando que se hundió en la mezcla)
+        objetoInteractuado.SetActive(false);
+
+        // 4. Checar si ya echamos la cantidad total que requiere la receta
+        if (tagsIngresados.Count >= ordenCorrectoReceta.Count)
         {
-            IngredienteCorrecto(objetoInteractuado);
-        }
-        else
-        {
-            IngredienteIncorrecto(objetoInteractuado);
+            VerificarReceta();
         }
     }
 
-    private void IngredienteCorrecto(GameObject ingrediente)
+    private void VerificarReceta()
     {
-        pasoActual++;
-        Debug.Log("¡Ingrediente correcto! Paso: " + pasoActual);
+        bool esCorrecta = true;
 
-        // Desconectamos el objeto del socket
-        socket.interactionManager.SelectExit(socket, (IXRSelectInteractable)ingrediente.GetComponent<XRGrabInteractable>());
+        // Comparamos lo que ingresó el jugador contra la receta original
+        for (int i = 0; i < ordenCorrectoReceta.Count; i++)
+        {
+            if (tagsIngresados[i] != ordenCorrectoReceta[i])
+            {
+                esCorrecta = false;
+                break; // Rompemos el ciclo al primer error encontrado
+            }
+        }
 
-        // En lugar de Destroy(), lo ocultamos. Así existe en memoria para poder recuperarlo.
-        ingrediente.SetActive(false);
-
-        if (pasoActual >= ordenCorrectoReceta.Count)
+        if (esCorrecta)
         {
             AbrirPuertaCastillo();
         }
-    }
+        else
+        {
+            Debug.Log("Poción arruinada. El orden fue incorrecto. Reiniciando el puzle...");
 
-    private void IngredienteIncorrecto(GameObject ingrediente)
-    {
-        Debug.Log("Ingrediente incorrecto. Poción arruinada. Reiniciando el puzle...");
+            // Aquí puedes agregar un sonido de explosión o fallo
 
-        // Forzar al socket a soltar el objeto incorrecto
-        socket.interactionManager.SelectExit(socket, (IXRSelectInteractable)ingrediente.GetComponent<XRGrabInteractable>());
+            // Limpiamos la lista temporal para volver a empezar
+            tagsIngresados.Clear();
 
-        // Reiniciar la lógica del puzle
-        pasoActual = 0;
-
-        // Llamamos a la función que restaura la habitación
-        RestaurarIngredientes();
+            // Restauramos los ingredientes a su lugar
+            RestaurarIngredientes();
+        }
     }
 
     private void RestaurarIngredientes()
@@ -103,10 +112,10 @@ public class CalderoMagico : MonoBehaviour
         {
             if (ingrediente != null)
             {
-                // 1. Los volvemos a hacer visibles (por si estaban "destruidos/ocultos" en el caldero)
+                // 1. Los volvemos a hacer visibles
                 ingrediente.SetActive(true);
 
-                // 2. Detenemos sus físicas. Si caen de golpe conservan inercia y podrían salir volando.
+                // 2. Detenemos sus físicas. 
                 Rigidbody rb = ingrediente.GetComponent<Rigidbody>();
                 if (rb != null)
                 {
@@ -114,7 +123,7 @@ public class CalderoMagico : MonoBehaviour
                     rb.angularVelocity = Vector3.zero;
                 }
 
-                // 3. Los teletransportamos a las posiciones y rotaciones que guardamos en el Start()
+                // 3. Los teletransportamos a las posiciones iniciales
                 ingrediente.transform.position = posicionesIniciales[ingrediente];
                 ingrediente.transform.rotation = rotacionesIniciales[ingrediente];
             }
@@ -124,6 +133,6 @@ public class CalderoMagico : MonoBehaviour
     private void AbrirPuertaCastillo()
     {
         Debug.Log("¡Poción completada! Lanzando evento...");
-        alCompletarPocion.Invoke(); // Esto dispara todo lo que configures en el Inspector
+        alCompletarPocion.Invoke();
     }
 }
