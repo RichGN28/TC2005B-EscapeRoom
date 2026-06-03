@@ -10,8 +10,15 @@ public class PuertaMagica : MonoBehaviour
     private Quaternion rotacionInicial;
     private Quaternion rotacionFinal;
 
+
+    [Tooltip("Arrastra aquí tu archivo de sonido")]
+    [SerializeField] private AudioClip sonidoApertura;
+
+    private AudioSource audioLocal;
+
     void Start()
     {
+        audioLocal = GetComponent<AudioSource>();
         rotacionInicial = transform.rotation;
         // Calculamos cuál será la rotación objetivo sumando el ángulo de apertura
         rotacionFinal = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y + anguloApertura, transform.eulerAngles.z);
@@ -30,7 +37,11 @@ public class PuertaMagica : MonoBehaviour
     public void AbrirPuerta()
     {
         abriendo = true;
-        // Aquí podrías agregar: audioSource.PlayOneShot(sonidoRechinido);
+
+        if (audioLocal != null && sonidoApertura != null)
+        {
+            audioLocal.PlayOneShot(sonidoApertura);
+        }
     }
 
 }

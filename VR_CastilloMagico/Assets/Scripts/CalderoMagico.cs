@@ -25,6 +25,14 @@ public class CalderoMagico : MonoBehaviour
     // Lista temporal para guardar lo que el jugador va metiendo al caldero
     private List<string> tagsIngresados = new List<string>();
 
+
+
+    [Tooltip("Arrastra aquí tu archivo de sonido")]
+    [SerializeField] private AudioClip sonidoApertura;
+    [SerializeField] private AudioClip PuzzleCorrecto;
+
+    private AudioSource audioLocal;
+
     void Awake()
     {
         socket = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor>();
@@ -32,6 +40,7 @@ public class CalderoMagico : MonoBehaviour
 
     void Start()
     {
+        audioLocal = GetComponent<AudioSource>();
         // Al iniciar el juego, guardamos las coordenadas, rotación y escala exacta de cada ingrediente
         foreach (GameObject ingrediente in todosLosIngredientes)
         {
@@ -67,6 +76,11 @@ public class CalderoMagico : MonoBehaviour
 
         // 3. Ocultar el ingrediente (simulando que se disolvió en el líquido)
         objetoInteractuado.SetActive(false);
+
+        if (audioLocal != null && sonidoApertura != null)
+        {
+            audioLocal.PlayOneShot(sonidoApertura);
+        }
 
         // 4. Checar si ya echamos la cantidad total que requiere la receta
         if (tagsIngresados.Count >= ordenCorrectoReceta.Count)
@@ -134,6 +148,10 @@ public class CalderoMagico : MonoBehaviour
     private void AbrirPuertaCastillo()
     {
         Debug.Log("¡Poción completada con éxito! Lanzando eventos de victoria...");
+        if (audioLocal != null && sonidoApertura != null)
+        {
+            audioLocal.PlayOneShot(PuzzleCorrecto);
+        }
         alCompletarPocion.Invoke();
     }
 }

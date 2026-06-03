@@ -16,8 +16,15 @@ public class MagicChest : MonoBehaviour
 
     private bool isOpen;
 
+    [Tooltip("Arrastra aquí tu archivo de sonido")]
+    [SerializeField] private AudioClip sonidoApertura;
+    [SerializeField] private AudioClip puzzleCorrecto;
+
+    private AudioSource audioLocal;
+
     private void Start()
     {
+        audioLocal = GetComponent<AudioSource>();
         if (keyObject != null)
         {
             keyObject.SetActive(false);
@@ -44,6 +51,15 @@ public class MagicChest : MonoBehaviour
             chestAnimator.enabled = true;
             chestAnimator.speed = 1f;
             chestAnimator.Play(openAnimationName, 0, 0f);
+
+            if (audioLocal != null && sonidoApertura != null)
+            {
+                audioLocal.PlayOneShot(sonidoApertura);
+                audioLocal.PlayOneShot(puzzleCorrecto);
+            }
+
+
+
         }
 
         StartCoroutine(StopChestWhenOpen());
