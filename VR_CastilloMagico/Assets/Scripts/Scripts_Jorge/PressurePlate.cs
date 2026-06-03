@@ -23,8 +23,15 @@ public class PressurePlate : MonoBehaviour
     private Vector3 pressedPlatePosition;
     private Coroutine checkCoroutine;
 
+
+
+    [SerializeField] private AudioClip sonidoError;
+
+    private AudioSource audioLocal;
+
     private void Start()
     {
+        audioLocal = GetComponent<AudioSource>();
         if (plateVisual != null)
         {
             originalPlatePosition = plateVisual.localPosition;
@@ -41,6 +48,10 @@ public class PressurePlate : MonoBehaviour
 
         if (!other.CompareTag(requiredTag))
         {
+            if (audioLocal != null && sonidoError != null)
+            {
+                audioLocal.PlayOneShot(sonidoError);
+            }
             return;
         }
 

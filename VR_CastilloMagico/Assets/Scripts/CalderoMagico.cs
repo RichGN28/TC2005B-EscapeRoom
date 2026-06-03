@@ -30,6 +30,7 @@ public class CalderoMagico : MonoBehaviour
     [Tooltip("Arrastra aquí tu archivo de sonido")]
     [SerializeField] private AudioClip sonidoApertura;
     [SerializeField] private AudioClip PuzzleCorrecto;
+    [SerializeField] private AudioClip puzzleIncorrecto;
 
     private AudioSource audioLocal;
 
@@ -110,6 +111,10 @@ public class CalderoMagico : MonoBehaviour
         else
         {
             Debug.Log("Poción arruinada. El orden o los ingredientes fueron incorrectos. Reiniciando...");
+            if (audioLocal != null && sonidoApertura != null)
+            {
+                audioLocal.PlayOneShot(puzzleIncorrecto);
+            }
 
             // Limpiamos la lista temporal para que el jugador vuelva a intentarlo desde cero
             tagsIngresados.Clear();
@@ -137,7 +142,7 @@ public class CalderoMagico : MonoBehaviour
                     rb.angularVelocity = Vector3.zero;
                 }
 
-                // 3. Restauramos las posiciones, rotaciones y la escala original
+                // 3. Restauramos las posiciones, rotaciones y la escala oiiriginal
                 ingrediente.transform.position = posicionesIniciales[ingrediente];
                 ingrediente.transform.rotation = rotacionesIniciales[ingrediente];
                 ingrediente.transform.localScale = escalasIniciales[ingrediente];
